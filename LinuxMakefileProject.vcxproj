@@ -86,7 +86,7 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <RemoteBuildCommandLine>gcc -g Source.cpp -o Output.out &amp; sleep 2</RemoteBuildCommandLine>
+    <RemoteBuildCommandLine>gcc -g Source.cpp -o Output.out &amp; sleep 1</RemoteBuildCommandLine>
     <RemoteBuildOutputs>Output.out</RemoteBuildOutputs>
     <BuildCommandLine>echo Simulate build</BuildCommandLine>
     <LocalBuildOutputs>$(ProjectDir)x64-Linux\Output.out</LocalBuildOutputs>
@@ -102,10 +102,56 @@
   </ItemGroup>
   <ItemDefinitionGroup />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <UsingTask TaskName="GetExternalDependenciesToCheckTask" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Files ParameterType="Microsoft.Build.Framework.ITaskItem[]" Output="true" />
+    </ParameterGroup>
+    <Task>
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[ 
+// inline C# code to provide dynamic dependences.  Based on https://docs.microsoft.com/en-us/visualstudio/msbuild/walkthrough-creating-an-inline-task?view=vs-2019       
+        
+var temp = new [] { new Microsoft.Build.Utilities.TaskItem("external/mytest_changes_trigger_build.h")	
+                    ,new Microsoft.Build.Utilities.TaskItem("external/bogus.h")};
+
+var result = new List<Microsoft.Build.Utilities.TaskItem>();
+
+// Only return files that exist.  A non-existing file triggers a build.
+foreach(var item in temp)
+{
+  string path = item.GetMetadata("FullPath");
+  
+  if(File.Exists(path))
+  {
+      result.Add(item);
+  }
+}
+
+Files = result.ToArray();
+
+]]></Code>
+    </Task>
+  </UsingTask>
   <Target Name="MyProject_AddToUpToDateCheckInput" BeforeTargets="GetBuildInputsForIncrementalBuild">
+    <GetExternalDependenciesToCheckTask>
+      <Output TaskParameter="Files" ItemName="UpToDateCheckInput" />
+    </GetExternalDependenciesToCheckTask>
+  </Target>
+
+  <Target Name="MyProject_AddToUpToDateCheckInput" BeforeTargets="GetBuildInputsForIncrementalBuild">
+    <GetExternalDependenciesToCheckTask>
+      <Output TaskParameter="Files" ItemName="UpToDateCheckInput" />
+    </GetExternalDependenciesToCheckTask>
+  </Target>
+  
+  <!-- 
+  Populate with static ItemGroup in Target.
+ <Target Name="MyProject_AddToUpToDateCheckInput" BeforeTargets="GetBuildInputsForIncrementalBuild">
     <ItemGroup>
       <UpToDateCheckInput Include="external/mytest_changes_trigger_build.h" />
     </ItemGroup>
-  </Target>
+  </Target>  
+  -->
+  
   <ImportGroup Label="ExtensionTargets" />
 </Project>
