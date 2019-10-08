@@ -97,13 +97,15 @@
   <ItemGroup>
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="readme.md" />
+  </ItemGroup>
   <ItemDefinitionGroup />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <Target Name="MyProject_AddToUpToDateCheckInput" BeforeTargets="GetBuildInputsForIncrementalBuild" >
+  <Target Name="MyProject_AddToUpToDateCheckInput" BeforeTargets="GetBuildInputsForIncrementalBuild">
     <ItemGroup>
       <UpToDateCheckInput Include="external/mytest.h" />
     </ItemGroup>
   </Target>
-
   <ImportGroup Label="ExtensionTargets" />
 </Project>
