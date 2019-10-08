@@ -104,7 +104,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Target Name="MyProject_AddToUpToDateCheckInput" BeforeTargets="GetBuildInputsForIncrementalBuild">
     <ItemGroup>
-      <UpToDateCheckInput Include="external/mytest.h" />
+      <UpToDateCheckInput Include="external/mytest_changes_trigger_rebuild.h" />
     </ItemGroup>
   </Target>
   <ImportGroup Label="ExtensionTargets" />
